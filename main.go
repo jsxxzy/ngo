@@ -10,9 +10,12 @@ import (
 	"github.com/jsxxzy/ngo/utils"
 )
 
+//go:generate go-bindata -o data.go vscode.bat
+
 var (
-	goMirrorURL    = "https://studygolang.com" // `golang` 镜像站
-	gitDownloadURL string                      // `git` 下载地址
+	goMirrorURL    = "https://studygolang.com"                // `golang` 镜像站
+	gitDownloadURL string                                     // `git` 下载地址
+	vscodeBatFile  string                      = "vscode.bat" // `vscode` 批处理安装文件
 )
 
 func main() {
@@ -21,8 +24,8 @@ func main() {
 
 func setup() {
 	installGO()
-	// installVSCODE()
 	installGIT()
+	installVSCODE()
 }
 
 func installGO() {
@@ -37,7 +40,7 @@ func installGO() {
 	if !utils.Check(filename) {
 		var goVersion = getGolangVersion(filename)
 		fmt.Printf("当前下载版本: %s\n", goVersion)
-		utils.DownloadFile(downloadURL, ".")
+		utils.DownloadFile(downloadURL, "./"+filename)
 		fmt.Println(`下载完成`)
 	}
 
@@ -86,12 +89,11 @@ func installGIT() {
 		fmt.Printf("当前下载: %s\n", filename)
 		utils.DownloadFile(gitDownloadURL, filename)
 	}
-
 	go utils.Open(filename)
 }
 
 func installVSCODE() {
-
+	go utils.Open(vscodeBatFile)
 }
 
 func init() {
@@ -100,5 +102,9 @@ func init() {
 		gitDownloadURL = constTaobaoMirrorURL + `v2.30.0-rc0.windows.1/Git-2.30.0-rc0-64-bit.exe`
 	} else {
 		gitDownloadURL = constTaobaoMirrorURL + `v2.30.0-rc0.windows.1/Git-2.30.0-rc0-32-bit.exe`
+	}
+	err := RestoreAsset(".", vscodeBatFile)
+	if err != nil {
+		panic(err)
 	}
 }
